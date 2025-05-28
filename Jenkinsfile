@@ -27,7 +27,15 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/k8s.yaml'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials'
+                ]]) {
+                    sh '''
+                        aws eks update-kubeconfig --name eks-store --region sa-east-1
+                        kubectl apply -f k8s/k8s.yaml
+                    '''
+                }
             }
         }
     }
