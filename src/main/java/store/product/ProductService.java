@@ -13,8 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict; // Importação adicionada
-import org.springframework.cache.annotation.CachePut;   // Importação adicionada
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 
 
 @Service
@@ -34,10 +34,10 @@ public class ProductService {
     // 1. Adicionar/Atualizar o produto no cache (se findById for chamado para ele).
     // 2. Invalidar o cache de 'findAll' para que a lista completa seja recarregada na próxima vez.
     @CacheEvict(value = "products", allEntries = true) // Invalida o cache de findAll
-    @CachePut(value = "products", key = "#product.id") // Atualiza o cache para o produto específico
+    @CachePut(value = "products", key = "#product.id()") // Atualiza o cache para o produto específico, usando o getter fluent
     public Product create(Product product) {
         // Log para depuração: indica quando o método realmente é chamado
-        System.out.println("Criando novo produto: " + product.getName());
+        System.out.println("Criando novo produto: " + product.name()); // Usando o getter fluent
         // Certifique-se de que o ID do produto é gerado antes de salvar, se não for feito pelo construtor
         // ou pelo banco de dados automaticamente. Se o ID for gerado pelo banco,
         // o @CachePut pode precisar de um #result.id se o ID for definido após o save.
@@ -47,7 +47,7 @@ public class ProductService {
     }
 
 
-    @Cacheable(value = "products", key = "'allProducts'") 
+    @Cacheable(value = "products", key = "'allProducts'")
     public List<Product> findAll() {
 
         System.out.println("Buscando todos os produtos do banco de dados.");
@@ -58,10 +58,10 @@ public class ProductService {
     }
 
 
-    @CacheEvict(value = "products", allEntries = true) 
-    @CacheEvict(value = "products", key = "#id") 
+
+    @CacheEvict(value = "products", allEntries = true) // Invalida o cache de todos os produtos e a lista 'allProducts'
     public String deleteById(String id) {
- 
+
         System.out.println("Deletando produto com ID: " + id);
         ProductModel product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found for deletion with ID: " + id));
