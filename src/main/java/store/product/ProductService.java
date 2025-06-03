@@ -34,7 +34,7 @@ public class ProductService {
     // 1. Adicionar/Atualizar o produto no cache (se findById for chamado para ele).
     // 2. Invalidar o cache de 'findAll' para que a lista completa seja recarregada na próxima vez.
     @CacheEvict(value = "products", allEntries = true) // Invalida o cache de findAll
-    @CachePut(value = "products", key = "#product.id()") // Atualiza o cache para o produto específico, usando o getter fluent
+    @CachePut(value = "products", key = "#result.id()") // Atualiza o cache para o produto específico, usando o ID do resultado
     public Product create(Product product) {
         // Log para depuração: indica quando o método realmente é chamado
         System.out.println("Criando novo produto: " + product.name()); // Usando o getter fluent
@@ -58,7 +58,7 @@ public class ProductService {
     }
 
 
-
+    // Combinando as duas anotações @CacheEvict em uma só
     @CacheEvict(value = "products", allEntries = true) // Invalida o cache de todos os produtos e a lista 'allProducts'
     public String deleteById(String id) {
 
